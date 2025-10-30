@@ -7,8 +7,13 @@ const app = express()
 const { subtle } = globalThis.crypto;
 const publicExponent = new Uint8Array([1, 0, 1]);
 
-async function savetodb() {
+function savetodb(UUID, key) {
+// Write to file (creates or overwrites)
+    fs.writeFileSync("SQLite/"+UUID, JSON.stringify(key));
 
+// Read from file
+//   const content = fs.readFileSync('test.txt', 'utf8');
+//   console.log(content); // "Hello World!"
 }
 
 async function generateRsaKey(modulusLength = 2048, hash = 'SHA-256') {
@@ -39,6 +44,7 @@ app.get("/gen", async (req, res) => {
     let UUID = cry.randomUUID()
     let keys = await generateRsaKey()
     let raw = await subtle.exportKey("jwk", keys.publicKey)
+    savetodb(UUID, await subtle.exportKey("jwk", keys.privateKey))
     res.json({key: raw, id: UUID})
 })
 app.listen(3000, () => {
