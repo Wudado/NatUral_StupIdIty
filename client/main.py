@@ -8,7 +8,6 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 
 def jwk_to_rsa_key(jwk_data):
-    """Convert JWK to RSA key using cryptography library"""
     n = base64.urlsafe_b64decode(jwk_data['n'] + '==')
     e = base64.urlsafe_b64decode(jwk_data['e'] + '==')
     
@@ -18,7 +17,6 @@ def jwk_to_rsa_key(jwk_data):
     ).public_key(default_backend())
 
 def encrypt_message(public_key, message):
-    """Encrypt a message using RSA public key"""
     encrypted = public_key.encrypt(
         message.encode('utf-8'),
         padding.OAEP(
@@ -48,9 +46,11 @@ try:
         print(f"Key ID: {data['id']}")
         print(f"\nPEM Format:\n{pem}")
         print(f"\nEncrypted 'hello world':\n{encrypted}")
-        
+        response = req.post('http://localhost:3000/submit', json={'enc_challenge': encrypted, 'id': data["id"]})  
     else:
         print(f"Error: HTTP {response.status_code}")
 
+
 except Exception as e:
     print(f"Request failed: {e}")
+

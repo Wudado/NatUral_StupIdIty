@@ -31,8 +31,14 @@ async function generateRsaKey(modulusLength = 2048, hash = 'SHA-256') {
 }
 app.use(express.json());
 
-app.get("/dikc", (req, res) => {
-    res.send("huy\n")
+app.post("/submit", async (req, res) => {
+  enc_challenge = req.body.enc_challenge
+  UUID = req.body.id
+  const private_raw = fs.readFileSync("SQLite/" + UUID, 'utf8');
+  let private = await  cry.subtle.importKey("jwk", JSON.parse(private_raw), { name: "RSA-OAEP", hash: "SHA-256" }, true, ['decrypt'])
+  console.log(private)
+  dec_challenge = await cry.subtle.decrypt({ name: "RSA-OAEP", hash: "SHA-256" }, private, Buffer.from(enc_challenge, "base64"))
+  console.log(new TextDecoder().decode(dec_challenge))
 })
 
 app.post("/echo", (req, res) => {
